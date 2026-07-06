@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<title>Pengaturan Tab Sleeper</title>
+<style>
+  :root{
+    --bg: #F2EFFC;
+    --surface: #FFFFFF;
+    --ink: #211F3D;
+    --muted: #7A76A3;
+    --primary: #5B4FE0;
+    --primary-dark: #3F35A8;
+    --primary-soft: #E7E3FB;
+    --amber: #F5A860;
+    --border: #E1DDF5;
+    --danger: #D9534F;
+    --radius: 16px;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system,"Segoe UI",ui-sans-serif,system-ui,sans-serif;
+    min-height:100vh;
+  }
+  .wrap{
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 36px 24px 60px;
+  }
+  header{
+    display:flex; align-items:center; gap:14px;
+    margin-bottom: 28px;
+  }
+  header svg{ width:38px; height:38px; flex-shrink:0; }
+  header h1{
+    font-family: Georgia, "Iowan Old Style", ui-serif, serif;
+    font-size: 26px;
+    margin:0;
+    letter-spacing: 0.2px;
+  }
+  header p{
+    margin: 2px 0 0;
+    color: var(--muted);
+    font-size: 13.5px;
+  }
+
+  .card{
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    margin-bottom: 18px;
+    box-shadow: 0 1px 3px rgba(33,31,61,0.06);
+  }
+  .card h2{
+    font-size: 15px;
+    margin: 0 0 4px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .card .desc{
+    font-size: 12.5px;
+    color: var(--muted);
+    margin: 0 0 16px;
+    line-height:1.5;
+  }
+
+  .row{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 10px 0;
+    border-top: 1px solid var(--border);
+  }
+  .row:first-of-type{ border-top:none; padding-top:0; }
+  .row-label{ font-size: 13.5px; font-weight:600; }
+  .row-hint{ font-size:12px; color:var(--muted); margin-top:2px; }
+
+  .switch{ position:relative; width:42px; height:24px; flex-shrink:0; }
+  .switch input{ opacity:0; width:0; height:0; }
+  .slider{
+    position:absolute; inset:0; cursor:pointer;
+    background: var(--border);
+    border-radius:999px;
+    transition: background 0.2s ease;
+  }
+  .slider::before{
+    content:""; position:absolute; width:18px; height:18px; left:3px; top:3px;
+    background:#fff; border-radius:50%;
+    transition: transform 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  input:checked + .slider{ background: var(--primary); }
+  input:checked + .slider::before{ transform: translateX(18px); }
+
+  .delay-input-group{
+    display:flex; gap:8px; align-items:center;
+  }
+  input[type="number"]{
+    width: 90px;
+    padding: 9px 10px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-size: 14px;
+    color: var(--ink);
+    background: #FBFAFF;
+  }
+  input[type="number"]:focus, select:focus, input[type="text"]:focus{
+    outline: 2px solid var(--primary);
+    outline-offset: 1px;
+  }
+  select{
+    padding: 9px 10px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-size: 14px;
+    background: #FBFAFF;
+    color: var(--ink);
+  }
+
+  .presets{
+    display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;
+  }
+  .preset-btn{
+    border: 1.5px solid var(--border);
+    background: #FBFAFF;
+    color: var(--primary-dark);
+    font-size: 12.5px;
+    font-weight:600;
+    padding: 6px 12px;
+    border-radius: 999px;
+    cursor:pointer;
+  }
+  .preset-btn:hover{ background: var(--primary-soft); }
+  .preset-btn.active{
+    background: var(--primary-dark);
+    color:#fff;
+    border-color: var(--primary-dark);
+  }
+
+  .exception-form{
+    display:flex; gap:8px; margin-bottom: 14px;
+  }
+  .exception-form input[type="text"]{
+    flex:1;
+    padding: 9px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-size: 13.5px;
+  }
+  .add-btn{
+    border:none;
+    background: var(--primary);
+    color:#fff;
+    font-weight:600;
+    font-size: 13px;
+    padding: 9px 16px;
+    border-radius: 10px;
+    cursor:pointer;
+  }
+  .add-btn:hover{ background: var(--primary-dark); }
+
+  .exception-list{
+    list-style:none; margin:0; padding:0;
+    display:flex; flex-direction:column; gap:6px;
+  }
+  .exception-item{
+    display:flex; align-items:center; justify-content:space-between;
+    background: #FBFAFF;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  .exception-item .remove{
+    background:none; border:none; cursor:pointer;
+    color: var(--danger);
+    font-size: 12px;
+    font-weight:700;
+  }
+  .empty-hint{
+    color: var(--muted);
+    font-size: 12.5px;
+    padding: 6px 2px;
+  }
+
+  .note{
+    font-size: 12px;
+    color: var(--muted);
+    background: var(--primary-soft);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-top: 14px;
+    line-height:1.5;
+  }
+
+  .toast{
+    position: fixed;
+    bottom: 22px; left:50%;
+    transform: translate(-50%, 20px);
+    background: var(--ink);
+    color:#fff;
+    padding: 9px 18px;
+    border-radius: 999px;
+    font-size: 13px;
+    opacity:0;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events:none;
+  }
+  .toast.show{
+    opacity:1;
+    transform: translate(-50%, 0);
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z" fill="#5B4FE0"/>
+      </svg>
+      <div>
+        <h1>Tab Sleeper</h1>
+        <p>Atur waktu tidur tab dan situs yang dikecualikan</p>
+      </div>
+    </header>
+
+    <div class="card">
+      <div class="row">
+        <div>
+          <div class="row-label">Aktifkan Tab Sleeper</div>
+          <div class="row-hint">Matikan sementara tanpa kehilangan pengaturan</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="enabledToggle" />
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Waktu tidur</h2>
+      <p class="desc">Tab akan ditidurkan (discard) setelah tidak aktif selama durasi ini. Set 5 detik untuk langsung menidurkan tab begitu Anda pindah tab.</p>
+
+      <div class="delay-input-group">
+        <input type="number" id="delayValue" min="1" step="1" />
+        <select id="delayUnit">
+          <option value="1">detik</option>
+          <option value="60">menit</option>
+        </select>
+      </div>
+
+      <div class="presets" id="presets">
+        <button class="preset-btn" data-seconds="5">5 detik</button>
+        <button class="preset-btn" data-seconds="30">30 detik</button>
+        <button class="preset-btn" data-seconds="300">5 menit</button>
+        <button class="preset-btn" data-seconds="900">15 menit</button>
+        <button class="preset-btn" data-seconds="1800">30 menit</button>
+      </div>
+
+      <div class="note">
+        Catatan: Chrome membatasi ketepatan waktu latar belakang. Untuk durasi di bawah ±30 detik, tab tetap akan tertidur, namun waktunya bisa meleset beberapa detik saat browser sedang idle.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Pengecualian situs</h2>
+      <p class="desc">Tab dari situs berikut tidak akan pernah ditidurkan. Gunakan nama domain (contoh: <code>youtube.com</code>) atau wildcard subdomain (contoh: <code>*.google.com</code>).</p>
+
+      <div class="exception-form">
+        <input type="text" id="exceptionInput" placeholder="contoh: youtube.com" />
+        <button class="add-btn" id="addExceptionBtn">Tambah</button>
+      </div>
+
+      <ul class="exception-list" id="exceptionList"></ul>
+      <div class="empty-hint" id="emptyHint">Belum ada pengecualian.</div>
+    </div>
+
+    <div class="card">
+      <h2>Pengecualian otomatis</h2>
+      <p class="desc">Aturan tambahan yang berlaku untuk semua situs.</p>
+
+      <div class="row">
+        <div>
+          <div class="row-label">Jangan tidurkan tab yang di-pin</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="excludePinned" />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="row">
+        <div>
+          <div class="row-label">Jangan tidurkan tab yang memutar audio</div>
+          <div class="row-hint">Misalnya musik atau video yang sedang berjalan</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="excludeAudio" />
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Tersimpan</div>
+
+  <script src="options.js"></script>
+</body>
+</html>
